@@ -53,6 +53,26 @@
             <artifactId>pdfbox</artifactId>
             <version>2.0.27</version> <!-- Replace with the latest version -->
         </dependency>
+        <!-- Firebase Admin SDK -->
+        <dependency>
+            <groupId>com.google.firebase</groupId>
+            <artifactId>firebase-admin</artifactId>
+            <version>8.0.0</version> <!-- Replace with the latest version -->
+        </dependency>
+
+        <!-- Firebase Storage -->
+        <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>google-cloud-storage</artifactId>
+            <version>2.2.0</version> <!-- Replace with the latest version -->
+        </dependency>
+
+        <!-- Spring Boot Web -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
 
 
 
