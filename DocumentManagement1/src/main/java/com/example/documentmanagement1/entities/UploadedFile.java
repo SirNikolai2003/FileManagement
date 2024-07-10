@@ -19,4 +19,8 @@ public class UploadedFile {
     @Column(nullable = false)
     private String fileType;
 
+    @Column(nullable = false)
+    private String about;
+
+
 }

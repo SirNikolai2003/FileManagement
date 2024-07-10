@@ -9,9 +9,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
 
+import com.example.documentmanagement1.entities.UploadedFile;
+import com.example.documentmanagement1.repositories.UploadedFileRepository;
 import com.example.documentmanagement1.services.FilesStorageService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,6 +26,8 @@ import org.springframework.web.multipart.MultipartFile;
 public class FilesStorageServiceImpl implements FilesStorageService {
 
     private final Path root = Paths.get("uploads");
+    @Autowired
+    private UploadedFileRepository uploadedFileRepository;
 
     @Override
     public void init() {
@@ -71,5 +79,34 @@ public class FilesStorageServiceImpl implements FilesStorageService {
         } catch (IOException e) {
             throw new RuntimeException("Could not load the files!");
         }
+    }
+    @Override
+    public void update(String filename, MultipartFile file) {
+        try {
+            Path existingFile = root.resolve(filename);
+
+            // Check if the file exists
+            if (!Files.exists(existingFile)) {
+                throw new RuntimeException("File not found: " + filename);
+            }
+
+            // Delete the existing file
+            Files.delete(existingFile);
+
+            // Save the new file
+            save(file);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to update file: " + filename, e);
+        }
+    }
+    public Page<UploadedFile> findByAbout(String about, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return uploadedFileRepository.findByAbout(about, pageable);
+    }
+
+    @Override
+    public Page<UploadedFile> findAll( int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return uploadedFileRepository.findAll(pageable);
     }
 }
