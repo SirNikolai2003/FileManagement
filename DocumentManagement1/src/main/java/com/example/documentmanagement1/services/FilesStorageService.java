@@ -1,4 +1,5 @@
 package com.example.documentmanagement1.services;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 
@@ -19,4 +20,5 @@ public interface FilesStorageService {
     void update(String filename, MultipartFile file);
     public Page<UploadedFile> findByAbout(String about, int page, int size);
     public Page<UploadedFile> findAll( int page, int size);
+    public void saveFileInFo(MultipartFile file, String about) throws IOException;
 }

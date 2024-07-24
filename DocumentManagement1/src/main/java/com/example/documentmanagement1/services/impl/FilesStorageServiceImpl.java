@@ -20,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -75,7 +76,8 @@ public class FilesStorageServiceImpl implements FilesStorageService {
     @Override
     public Stream<Path> loadAll() {
         try {
-            return Files.walk(this.root, 1).filter(path -> !path.equals(this.root)).map(this.root::relativize);
+            Stream<Path> pathStream = Files.walk(this.root, 1).filter(path -> !path.equals(this.root)).map(this.root::relativize);
+            return pathStream;
         } catch (IOException e) {
             throw new RuntimeException("Could not load the files!");
         }
@@ -108,5 +110,33 @@ public class FilesStorageServiceImpl implements FilesStorageService {
     public Page<UploadedFile> findAll( int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return uploadedFileRepository.findAll(pageable);
+    }
+    public void saveFileInFo(MultipartFile file, String about) throws IOException {
+        UploadedFile uploadedFile = new UploadedFile();
+        uploadedFile.setFileName(StringUtils.cleanPath(file.getOriginalFilename()));
+        uploadedFile.setFileType(file.getContentType());
+        uploadedFile.setAbout(about);
+
+        uploadedFileRepository.save(uploadedFile);
+    }
+    private void validateFile(MultipartFile file) {
+        if (file.isEmpty()) {
+            throw new IllegalArgumentException("Please select a file to upload");
+        }
+
+        if (!isValidFileType(file)) {
+            throw new IllegalArgumentException("Only XLS, XLSX, or PDF files are allowed");
+        }
+
+        if (file.getSize() > 10 * 1024 * 1024) {
+            throw new IllegalArgumentException("File size exceeds the limit of 10MB");
+        }
+    }
+    public boolean isValidFileType(MultipartFile file) {
+        String contentType = file.getContentType();
+        return contentType != null &&
+                (contentType.equals("application/vnd.ms-excel") || // XLS
+                        contentType.equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") || // XLSX
+                        contentType.equals("application/pdf")); // PDF
     }
 }
